@@ -1,0 +1,132 @@
+﻿<Window x:Class="EustonLeisureMessageFilteringDesktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EustonLeisureMessageFilteringDesktop"
+        mc:Ignorable="d"
+        Title="Euston Leisure Message Filtering" Height="650" Width="1000">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="boolToVisConverter"></BooleanToVisibilityConverter>
+    </Window.Resources>
+    <Window.Background>
+        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+            <GradientStop Color="#FF6AC538" Offset="0"/>
+            <GradientStop Color="#FF0D84D9" Offset="1"/>
+        </LinearGradientBrush>
+    </Window.Background>
+    <Window.DataContext>
+        <local:MainWindowViewModel></local:MainWindowViewModel>
+    </Window.DataContext>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="3*"/>
+                <RowDefinition Height="5*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal">
+                <Button Height="24" Width="70" Content="Export" 
+                        Command="{Binding ExportJsonCommand}"
+                        ToolTip="Export Message to Json File"></Button>
+            </StackPanel>
+            <GroupBox Grid.Row="1" Header="input message header (S,E or T followed by 9 numeric characters)">
+                <TextBox Height="24" Margin="2" Text="{Binding MessageHeader,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" AcceptsReturn="False" TextWrapping="NoWrap"></TextBox>
+            </GroupBox>
+            <GroupBox Grid.Row="3"  Header="input message body">
+                <TextBox Margin="2" Text="{Binding OriginalMessageBody,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap"></TextBox>
+            </GroupBox>
+            <GroupBox Grid.Row="2" Header="Message Type">
+                <ListBox Margin="2"  Height="40"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     SelectionMode="Single" IsEnabled="False"
+                     ItemsSource="{Binding MessageTypeList}" SelectedIndex="{Binding SelectedType,Mode=TwoWay}">
+                    <!--<ListBox.Resources>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+                    </Style>
+                </ListBox.Resources>-->
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <RadioButton Height="26" Width="100"
+                                     IsChecked="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBoxItem},Path=IsSelected}"
+                                     Content="{Binding}" VerticalAlignment="Center" VerticalContentAlignment="Center"></RadioButton>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"></StackPanel>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </GroupBox>
+            <GroupBox Grid.Row="4" Header="processed message" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <GroupBox Header="Sender">
+                        <TextBox Height="26" Margin="2" Text="{Binding MessageSender}" VerticalContentAlignment="Center" TextWrapping="NoWrap" IsReadOnly="True"></TextBox>
+                    </GroupBox>
+                    <GroupBox Grid.Row="1" Header="Email Subject" Visibility="{Binding DisplaySubject,Converter={StaticResource boolToVisConverter}}">
+                        <TextBox Height="26" Margin="2" Text="{Binding MessageSubject}" VerticalContentAlignment="Center" TextWrapping="NoWrap" IsReadOnly="True"></TextBox>
+                    </GroupBox>
+                    <GroupBox Grid.Row="2" >
+                        <GroupBox.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="processed message body"></TextBlock>
+                                <TextBlock Width="50"></TextBlock>
+                                <TextBlock Text="total" VerticalAlignment="Center" Margin="2,0"></TextBlock>
+                                <TextBlock Text="{Binding Count}" VerticalAlignment="Center"></TextBlock>
+                                <TextBlock Text="/" VerticalAlignment="Center" Margin="2,0"></TextBlock>
+                                <TextBlock Text="max" VerticalAlignment="Center" Margin="2,0"></TextBlock>
+                                <TextBlock Text="{Binding MaxCount,StringFormat={}{0} characters (not including processed characters)}" VerticalAlignment="Center"></TextBlock>
+                            </StackPanel>
+                        </GroupBox.Header>
+                        <TextBox Margin="2" TextWrapping="Wrap" Text="{Binding MessageContent}" IsReadOnly="True"></TextBox>
+                    </GroupBox>
+                </Grid>
+
+            </GroupBox>
+
+        </Grid>
+        <GroupBox Grid.Column="1" Header="Additional Items" Margin="2" MinWidth="300" Visibility="{Binding DisplayItems,Converter={StaticResource boolToVisConverter}}">
+            <ScrollViewer>
+                <ItemsControl  Margin="10"
+                                ItemsSource="{Binding AdditionalItems}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"></StackPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <GroupBox Header="{Binding Key}">
+                                <ListBox ItemsSource="{Binding Value}" Height="180" Width="320">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid >
+                                                <TextBlock VerticalAlignment="Center" Text="{Binding}"></TextBlock>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </GroupBox>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+            
+        </GroupBox>
+    </Grid>
+    
+</Window>
